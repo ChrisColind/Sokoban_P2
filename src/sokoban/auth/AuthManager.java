@@ -71,17 +71,48 @@ public class AuthManager implements Authenticable {
 
     @Override
     public boolean logout(String username) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        if (currentPlayer != null && currentPlayer.getUsername().equals(username)){
+            currentPlayer = null;
+            System.out.println("Sesion cerrada");
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean changePassword(String username, String oldPassword, String newPassword) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try{
+            Player player = userFileManager.loadPlayer(username);
+            if (player == null) return false;
+            if (!player.getPassword().equals(oldPassword)) {
+                System.out.println("Contrasena actual incorrecta");
+                return false;
+            }
+            if(!validatePassword(newPassword));
+            userFileManager.savePlayer(player);
+            return true;
+        }catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error al cambiar contrasena: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
     public boolean validatePassword(String password) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        if (password.length()<8) return false;
+        if(!password.matches(".*[A-Z]*")) return false;
+        if(!password.matches(".*[0-9]*.")) return false;
+        if(!password.matches(".*[!@#$%^&*()].*")) return false;
+        return true;
+    }
+    
+    public Player getCurrentPlayer() 
+    {
+        return currentPlayer;
+    }
+    
+    public boolean isLoggedIn(){
+        return currentPlayer != null;
     }
     
 }
